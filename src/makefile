@@ -1,5 +1,6 @@
 link: compile
 	gcc -o calc *.o
+	make clean
 
 compile:
 	gcc -Wall -std=c99 -c *.c
