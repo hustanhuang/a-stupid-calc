@@ -1,6 +1,8 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define maxExprLen 256
+#include <limits.h>
+
+#define maxExprLen 2048
 
 #endif

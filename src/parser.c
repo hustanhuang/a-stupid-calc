@@ -1,12 +1,13 @@
 #include "parser.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 #define errorSymbol(c) fprintf(stderr, "Illegal symbol: %c\n", c)
 
-int parse(const char *expr, char (*tokens)[maxExprLen])
+int parse(const char *expr, tokenNode *infix)
 {
     size_t len = strlen(expr);
 
@@ -14,9 +15,6 @@ int parse(const char *expr, char (*tokens)[maxExprLen])
     char noOperExpr[maxExprLen];
     memset(noOperExpr, 0, sizeof(maxExprLen));
     strcpy(noOperExpr, expr);
-
-    //use a flag to ensure the +, - after the P, p, E, e are not seperated
-    int previsEP = 0;
 
     //replace the operators in the noOperExpr with spaces
     for (size_t i = 0; i != len; ++i) {
@@ -27,31 +25,14 @@ int parse(const char *expr, char (*tokens)[maxExprLen])
         char *c = noOperExpr + i;
 
         //the legality of a number is checked when processing the tokens
-        //xdigits, X, x and . are treated as part of a number
-        if (isxdigit(*c) || *c == '.' || *c == 'x' || *c == 'X') {
+        //xdigits, X & x are treated as part of a number
+        if (!isxdigit(*c) && toupper(*c) != 'X') {
 
-            previsEP = 0;
-
-        //P, p, E, e indicates the start of a exponential expression
-        } else if (*c == 'P' || *c == 'p' || *c == 'E' || *c == 'e') {
-
-            previsEP = 1;
-
-        //processing the operators and the illegal symbols
-        } else {
-
+            //processing the operators and the illegal symbols
             switch (*c) {
 
                 case '+': case '-': 
-                    if (!previsEP) {
-                        *c = ' ';
-                    }
-                    break;
-
-                case '*': case '/': case '^':
-                    *c = ' ';
-                    break;
-
+                case '*': case '/': case '%':
                 case '(': case ')':
                     *c = ' ';
                     break;
@@ -60,34 +41,33 @@ int parse(const char *expr, char (*tokens)[maxExprLen])
                     errorSymbol(*c);
                     return 0;
             }
-
-            previsEP = 0;
         }
     }
 
     //slice the tokens
     //the numbers are seperated with spaces in the noOperExpr
     //while the operators are at the corresponding palces in the expr
-    int tokenIndex = 0;
     for (size_t i = 0; i != len; ++i) {
 
         //use a temp array to construct a string
-        char tempToken[len + 1];
-        memset(tempToken, 0, sizeof(tempToken));
+        char *tempToken = malloc(sizeof(char) * (len + 1));
+        memset(tempToken, 0, sizeof(char) * (len + 1));
 
         //if the present character is a space then
         //the corresponding character in the expr
         //is an operator
         if (noOperExpr[i] == ' ') {
 
-            tempToken[0] = expr[i];
-            strcpy(tokens[tokenIndex++], tempToken);
+            *tempToken = expr[i];
+            infix = addAfterTokenNode(infix);
+            infix->token = tempToken;
 
             //else it is a part of a number
         } else {
 
             sscanf(noOperExpr + i, "%s", tempToken);
-            strcpy(tokens[tokenIndex++], tempToken);
+            infix = addAfterTokenNode(infix);
+            infix->token = tempToken;
 
             //move i to the place
             //where the next operator occurs

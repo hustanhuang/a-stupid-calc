@@ -4,40 +4,31 @@
 #include <string.h>
 
 #include "defines.h"
+#include "tokens.h"
 #include "parser.h"
-#include "convert.h"
-
-char tokens[maxExprLen][maxExprLen];
-char postfix[maxExprLen][maxExprLen];
+#include "number.h"
 
 int evaluate(const char *expr)
 {
-    memset(tokens, 0, sizeof(tokens));
-    memset(postfix, 0, sizeof(postfix));
+    tokenNode *infix = createTokenNode();
+    addAfterTokenNode(infix);
 
-    if (!parse(expr, tokens)) {
+    if (!parse(expr, infix)) {
         fprintf(stderr, "Parsing failed\n");
         return 0;
     }
 
-    for (size_t i = 0; i != maxExprLen; ++i) {
-        if (tokens[i][0]) {
-            printf("%s ", tokens[i]);
-        }
+    for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
+        printf("%s ", i->token);
     }
     putchar('\n');
 
-    if (!convert(tokens, postfix)) {
-        fprintf(stderr, "Convertion failed\n");
-        return 0;
-    }
+    char a[128];
+    scanf("%s", a);
+    baseNumber b = strtonum(a);
+    printf("0X%s\n", b);
 
-    for (size_t i = 0; i != maxExprLen; ++i) {
-        if (postfix[i][0]) {
-            printf("%s ", postfix[i]);
-        }
-    }
-    putchar('\n');
+    freeAllTokenNodes(infix);
 
     return 1;
 }

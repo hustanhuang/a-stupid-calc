@@ -61,7 +61,6 @@ int main (int argc, char **argv)
         //interactive mode emulates the python interpreter
         printf("A Stupid Calc\n");
 
-       
         //interactive mode does not evaluate the expressions from the parameters
         if (optind != argc) {
             printf("The expressions in the parameters are ignored.\n");
