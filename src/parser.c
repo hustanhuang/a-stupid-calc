@@ -4,7 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define errorSymbol(c) fprintf(stderr, "Encountered illegal symbol: %c\n", c)
+#define errorSymbol(c) fprintf(stderr, "Illegal symbol: %c\n", c)
 
 int parse(const char *expr, char (*tokens)[maxExprLen])
 {

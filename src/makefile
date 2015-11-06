@@ -1,13 +1,6 @@
-link: compile
-	gcc -o calc *.o
-	make clean
-
 compile:
-	gcc -Wall -std=c99 -c *.c
+	gcc -Wall -std=c99 -o calc *.c
+	make clean
 
 clean:
 	rm *.o *~
-
-cleanup:
-	rm calc
-	make clean
