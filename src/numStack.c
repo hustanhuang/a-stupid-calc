@@ -28,5 +28,9 @@ void reduce(Fraction *thisFraction)
         thisFraction->numerator *= -1;
         thisFraction->denominator *= -1;
     }
+    if (thisFraction->denominator == -1) {
+        thisFraction->denominator = 1;
+        thisFraction->numerator *= -1;
+    }
     return;
 }

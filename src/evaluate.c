@@ -65,22 +65,23 @@ int evaluate(const char *expr)
 
                 case ')':
 
-                    while (operStack[operNum] != '(' && operNum) {
+                    while (operStack[operNum - 1] != '(' && operNum) {
 
                         checkNumStack();
                         Fraction *b = numStack + (--numNum);
-                        printf("%lld/%lld\n", b->numerator, b->denominator);
+                        printf("b = %lld/%lld\n", b->numerator, b->denominator);
                         Fraction *a = numStack + (--numNum);
-                        printf("%lld/%lld\n", a->numerator, a->denominator);
+                        printf("a = %lld/%lld\n", a->numerator, a->denominator);
                         Fraction c;
+                        printf("%c\n", operStack[operNum - 1]);
 
-                        switch (operStack[operNum]) {
+                        switch (operStack[--operNum]) {
                             case '+':
-                                c.numerator = a->numerator * b->denominator + a->numerator * b->denominator;
+                                c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
                                 c.denominator = a->denominator * b->denominator;
                                 break;
                             case '-':
-                                c.numerator = a->numerator * b->denominator - a->numerator * b->denominator;
+                                c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
                                 c.denominator = a->denominator * b->denominator;
                                 break;
                             case '*':
@@ -98,8 +99,9 @@ int evaluate(const char *expr)
                         reduce(&c);
 
                         numStack[numNum++] = c;
-                        --operNum;
                     }
+
+                    --operNum;
                     break;
                 default:
 
@@ -192,7 +194,12 @@ int evaluate(const char *expr)
 
     while (numNum) {
         Fraction result = numStack[--numNum];
-        printf("%lld/%lld\n", result.numerator, result.denominator);
+        printf("%lld", result.numerator);
+        if (result.denominator == 1) {
+            putchar('\n');
+        } else {
+            printf("%lld\n", result.denominator);
+        }
     }
 
     while (operNum) {
