@@ -107,21 +107,6 @@ void removeZero(baseNumber *number)
     return;
 }
 
-void printBaseNum(const baseNumber *number)
-{
-    if (number->sign == -1) {
-        putchar('-');
-    }
-    for (int i = 0; i != number->len; ++i) {
-        if (number->xdigits[i] > 9) {
-            putchar(number->xdigits[i] - 10 + 'A');
-        } else {
-            putchar(number->xdigits[i] + '0');
-        }
-    }
-    return;
-}
-
 baseNumber createBaseNum(char *numstr)
 {
     baseNumber result;
@@ -172,4 +157,21 @@ baseNumber createBaseNum(char *numstr)
     removeZero(&result);
 
     return result;
+}
+
+void printBaseNum(const baseNumber *number)
+{
+    if (number->sign == -1) {
+        putchar('-');
+    } else if (number->sign == 0) {
+        putchar('0');
+    }
+    for (int i = 0; i != number->len; ++i) {
+        if (number->xdigits[i] > 9) {
+            putchar(number->xdigits[i] - 10 + 'A');
+        } else {
+            putchar(number->xdigits[i] + '0');
+        }
+    }
+    return;
 }

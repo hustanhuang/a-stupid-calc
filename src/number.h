@@ -11,15 +11,8 @@ struct basenumber {
 
 typedef struct basenumber baseNumber;
 
-struct resultnumber {
-    baseNumber numerator;
-    baseNumber denominator;
-};
-
-typedef struct resultnumber resultNumber;
-
+void removeZero(baseNumber *number);
 baseNumber createBaseNum(char *numstr);
 void printBaseNum(const baseNumber *number);
-void removeZero(baseNumber *number);
 
 #endif
