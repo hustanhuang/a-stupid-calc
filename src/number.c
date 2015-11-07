@@ -89,6 +89,7 @@ void shrinkBaseHex(baseNumber *number)
     return;
 }
 
+//have problems when dealing with numbers like 000000
 void removeZero(baseNumber *number)
 {
     if (number->len != 1) {
@@ -96,6 +97,12 @@ void removeZero(baseNumber *number)
         for (int i = 0; !number->xdigits[i] && i != number->len; ++i) {
             ++zeroNum;
         }
+
+        //dealing with the 000...s
+        if (zeroNum == number->len) {
+            --zeroNum;
+        }
+
         if (zeroNum) {
             for (int i = 0; i != number->len - zeroNum; ++i) {
                 number->xdigits[i] = number->xdigits[i + zeroNum];
@@ -161,11 +168,7 @@ baseNumber createBaseNum(char *numstr)
 
 void printBaseNum(const baseNumber *number)
 {
-    if (number->sign == -1) {
-        putchar('-');
-    } else if (number->sign == 0) {
-        putchar('0');
-    }
+    printf("(%d) ", number->sign);
     for (int i = 0; i != number->len; ++i) {
         if (number->xdigits[i] > 9) {
             putchar(number->xdigits[i] - 10 + 'A');
