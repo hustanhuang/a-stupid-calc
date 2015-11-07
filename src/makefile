@@ -4,3 +4,8 @@ compile:
 
 clean:
 	rm *.o *~
+
+cleanup:
+	rm calc
+	rm -R calc.dSYM
+	make clean

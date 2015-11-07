@@ -44,7 +44,7 @@ int evaluate(const char *expr)
     for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
 
         char *endptr = NULL;
-        long long thisNumber = strtoll(i->token, &endptr, 10);
+        long long thisNumber = strtoll(i->token, &endptr, 0);
 
         if (endptr != i->token) {
 
