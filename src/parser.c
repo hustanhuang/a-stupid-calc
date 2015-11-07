@@ -66,6 +66,12 @@ int parse(const char *expr, tokenNode *infix)
         } else {
 
             sscanf(noOperExpr + i, "%s", tempToken);
+
+            //Ensure all characters are capital
+            for (size_t j = 0; j != strlen(tempToken); ++j) {
+                tempToken[j] = toupper(tempToken[j]);
+            }
+
             infix = addAfterTokenNode(infix);
             infix->token = tempToken;
 

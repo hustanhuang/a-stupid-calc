@@ -1,7 +1,15 @@
 #ifndef NUMBER_H_
 #define NUMBER_H_
 
-typedef char* baseNumber;
+#include "defines.h"
+
+struct basenumber {
+    int sign;
+    char xdigits[maxExprLen];
+    int len;
+};
+
+typedef struct basenumber baseNumber;
 
 struct resultnumber {
     baseNumber numerator;
@@ -10,16 +18,8 @@ struct resultnumber {
 
 typedef struct resultnumber resultNumber;
 
-baseNumber createBaseNumber();
-
-void createResultNumber(resultNumber *newNumber);
-void freeResultNumber();
-
-baseNumber strtonum(char *numstr);
-
-baseNumber baseAdd(baseNumber a, baseNumber b);
-baseNumber baseSub(baseNumber a, baseNumber b);
-baseNumber baseMult(baseNumber a, baseNumber b);
-baseNumber baseDiv(baseNumber a, baseNumber b);
+baseNumber createBaseNum(char *numstr);
+void printBaseNum(const baseNumber *number);
+void removeZero(baseNumber *number);
 
 #endif

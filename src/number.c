@@ -7,128 +7,169 @@
 
 #include "defines.h"
 
-baseNumber createBaseNumber()
-{
-    baseNumber newNumber = malloc(sizeof(char) * maxExprLen);
-    memset(newNumber, 0, sizeof(char) * maxExprLen);
-    return newNumber;
-}
-
-void createResultNumber(resultNumber *newNumber)
-{
-    newNumber->numerator = createBaseNumber();
-    newNumber->denominator = createBaseNumber();
-    return;
-}
-
-void freeResultNumber(resultNumber *thisNumber)
-{
-    free(thisNumber->numerator);
-    free(thisNumber->denominator);
-    return;
-}
-
-void shrinkBaseBin(const baseNumber number)
+void shrinkBaseBin(baseNumber *number)
 {   
+    //2^4 == 16^1
     int powof2[4] = { 1, 2, 4, 8 };
-    int steps = strlen(number) / 4;
 
-    baseNumber iter = number;
-    for (int i = 0; i != steps; ++i) {
+    int sectionNum = strlen(number->xdigits) / 4;
+    number->len = sectionNum;
 
-        int thisval = 0;
+    char *iter = number->xdigits;
+    for (int i = 0; i != sectionNum; ++i) {
 
+        //get the value of each section
+        int sectionVal = 0;
         for (int j = 0; j != 4; ++j) {
-            if (*(iter + j) == '1') {
-                thisval += powof2[3 - j];
-            }
-            *(iter + j) = '\0';
+            sectionVal += (iter[j] - '0') * powof2[3 - j];
+            iter[j] = '\0';
         }
 
-        if (thisval < 10) {
-            *(number + i) = '0' + thisval;
-        } else {
-            *(number + i) = 'A' + thisval - 10;
-        }
+        //set the value of this section
+        number->xdigits[i] = sectionVal;
 
+        //go to next section
         iter += 4;
     }
 
     return;
 }
 
-void shrinkBaseOct(const baseNumber number)
+void shrinkBaseOct(baseNumber *number)
 {   
+    //8^4 == 16^3
     int powof8[4] = { 1, 8, 64, 512 };
     int powof16[3] = { 1, 16, 256 };
-    int steps = strlen(number) / 3;
 
-    baseNumber iter = number;
-    for (int i = 0; i != steps; ++i) {
+    int sectionNum = strlen(number->xdigits) / 4;
+    const int segmentNum = 3;
+    number->len = sectionNum * 3;
 
-        int thisval = 0;
+    char *iter = number->xdigits;
+    for (int i = 0; i != sectionNum; ++i) {
 
+        //get the value of each section
+        int sectionVal = 0;
         for (int j = 0; j != 4; ++j) {
-            thisval += (*(iter + j) - '0') * powof8[3 - j];
-            *(iter + j) = '\0';
+            sectionVal += (iter[j] - '0') * powof8[3 - j];
+            iter[j] = '\0';
         }
 
-        for (int j = 0; j != 3; ++j) {
-            int subval = thisval / powof16[2 - j];
-            if (subval < 10) {
-                *(number + i + j) = '0' + subval;
-            } else {
-                *(number + i + j) = 'A' + subval - 10;
-            }
-            thisval %= powof16[2 - j];
+        //cut the section
+        for (int j = 0; j != segmentNum; ++j) {
+
+            //set the value of this segment
+            number->xdigits[i * segmentNum + j] = sectionVal / powof16[2 - j];
+
+            //go to next segment
+            sectionVal %= powof16[2 - j];
         }
 
+        //go to next section
         iter += 4;
     }
 
     return;
 }
 
-baseNumber strtonum(char *numstr)
+void shrinkBaseHex(baseNumber *number)
 {
-    baseNumber result = createBaseNumber();
+    char *iter = number->xdigits;
+    number->len = strlen(number->xdigits);
+
+    while (*iter) {
+        if (isdigit(*iter)) {
+            *iter -= '0';
+        } else {
+            *iter = *iter - 'A' + 10;
+        }
+        iter++;
+    }
+
+    return;
+}
+
+void removeZero(baseNumber *number)
+{
+    if (number->len != 1) {
+        int zeroNum = 0;
+        for (int i = 0; !number->xdigits[i] && i != number->len; ++i) {
+            ++zeroNum;
+        }
+        if (zeroNum) {
+            for (int i = 0; i != number->len - zeroNum; ++i) {
+                number->xdigits[i] = number->xdigits[i + zeroNum];
+                number->xdigits[i + zeroNum] = 0;
+            }
+        }
+        number->len -= zeroNum;
+    }
+    return;
+}
+
+void printBaseNum(const baseNumber *number)
+{
+    if (number->sign == -1) {
+        putchar('-');
+    }
+    for (int i = 0; i != number->len; ++i) {
+        if (number->xdigits[i] > 9) {
+            putchar(number->xdigits[i] - 10 + 'A');
+        } else {
+            putchar(number->xdigits[i] + '0');
+        }
+    }
+    return;
+}
+
+baseNumber createBaseNum(char *numstr)
+{
+    baseNumber result;
+    memset(&result, 0, sizeof(result));
+    result.sign = 1;
     size_t numlen = strlen(numstr);
 
-    if (numlen == 1) {
-        numstr[0] = toupper(numstr[0]);
-        strcpy(result, numstr);
-        printf("is hex %s\n", result);
-    } else if (*numstr == '1') {
+    //bin
+    if (*numstr == '1') {
+
         int placeHolderNum = 4 - numlen % 4;
         placeHolderNum = (placeHolderNum == 4) ? 0 : placeHolderNum;
         for (int i = 0; i != placeHolderNum; ++i) {
-            result[i] = '0';
+            result.xdigits[i] = '0';
         }
-        strcpy(result + placeHolderNum, numstr);
-        printf("is bin %s\n", result);
-        shrinkBaseBin(result);
+
+        strcpy(result.xdigits + placeHolderNum, numstr);
+        shrinkBaseBin(&result);
+
     } else if (*numstr == '0') {
-        if (toupper(*(numstr + 1)) == 'X') {
-            for (int i = 0; i != strlen(numstr); ++i) {
-                numstr[i] = toupper(numstr[i]);
-            }
-            strcpy(result, numstr + 2);
-            printf("is hex %s\n", result);
-        } else {
+
+        //single 0
+        if (!numstr[1]) {
+
+            result.sign = 0;
+            result.len = 1;
+
+        //hex
+        } else if (numstr[1] == 'X') {
+
+            strcpy(result.xdigits, numstr + 2);
+            shrinkBaseHex(&result);
+
+        //oct
+        } else if (isdigit(numstr[1])) {
+
             int placeHolderNum = 4 - (numlen - 1) % 4;
             placeHolderNum = (placeHolderNum == 4) ? 0 : placeHolderNum;
             for (int i = 0; i != placeHolderNum; ++i) {
-                result[i] = '0';
+                result.xdigits[i] = '0';
             }
-            strcpy(result + placeHolderNum, numstr + 1);
-            printf("is oct %s\n", result);
-            shrinkBaseOct(result);
-        }
+
+            strcpy(result.xdigits + placeHolderNum, numstr + 1);
+            shrinkBaseOct(&result);
+        } 
     }
+
+    removeZero(&result);
+
     return result;
 }
-
-/*baseNumber baseAdd(baseNumber a, baseNumber b);*/
-/*baseNumber baseSub(baseNumber a, baseNumber b);*/
-/*basenumber baseMult(baseNumber a, baseNumber b);*/
-/*baseNumber baseDiv(baseNumber a, baseNumber b);*/
