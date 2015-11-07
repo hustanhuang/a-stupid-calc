@@ -1,7 +1,5 @@
 #include "operStack.h"
 
-#include <stdlib.h>
-
 int operPriority[256];
 
 void initOperPriority()

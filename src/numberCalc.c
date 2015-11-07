@@ -1,7 +1,5 @@
 #include "numberCalc.h"
 
-#include <stdio.h>
-
 int baseAbsComp(const baseNumber *a, const baseNumber *b)
 {
     if (a->len == b->len) {

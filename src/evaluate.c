@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "defines.h"
 
@@ -109,12 +108,7 @@ int evaluate(const char *expr)
     //pop the results
     while (numNum) {
         Fraction *result = popNum();
-        printf("%lld", result->numerator);
-        if (result->denominator == 1) {
-            putchar('\n');
-        } else {
-            printf("%lld\n", result->denominator);
-        }
+        printf("%lld/%lld\n", result->numerator, result->denominator);
     }
 
     //free the tokens allocated

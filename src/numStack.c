@@ -1,7 +1,5 @@
 #include "numStack.h"
 
-#include <stdio.h>
-
 Fraction createFraction(long long numerator, long long denominator)
 {
     Fraction newFraction = { numerator, denominator };
