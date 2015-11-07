@@ -64,7 +64,9 @@ baseNumber baseAdd(const baseNumber *a, const baseNumber *b)
 baseNumber baseSub(const baseNumber *a, const baseNumber *b)
 {
     if (a->sign == 0) {
-        return *b;
+        baseNumber c = *b;
+        c.sign *= -1;
+        return c;
     }
 
     if (b->sign == 0) {
