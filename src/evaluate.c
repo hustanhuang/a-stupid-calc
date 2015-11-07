@@ -105,10 +105,10 @@ int evaluate(const char *expr)
 
                     if (operNum) {
 
-                        int operLevel = oper;
-                        int topOperLevel = operStack[operNum];
+                        int operIndex = oper;
+                        int topOperIndex = operStack[operNum - 1];
 
-                        if (operPriority[operLevel] <= operPriority[topOperLevel]) {
+                        if (operPriority[operIndex] < operPriority[topOperIndex]) {
 
                             while (operStack[operNum - 1] != '(' && operNum) {
 
