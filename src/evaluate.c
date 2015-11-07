@@ -1,90 +1,205 @@
 #include "evaluate.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 #include "defines.h"
+
 #include "tokens.h"
 #include "parser.h"
+
 #include "number.h"
 #include "numberCalc.h"
+#include "numStack.h"
+
+#define checkNumStack(); if (numNum < 2) { fprintf(stderr, "No enough numbers.\n"); return 0;}
 
 int evaluate(const char *expr)
 {
-    /*tokenNode *infix = createTokenNode();*/
-    /*addAfterTokenNode(infix);*/
+    tokenNode *infix = createTokenNode();
+    addAfterTokenNode(infix);
 
-    /*if (!parse(expr, infix)) {*/
-        /*fprintf(stderr, "Parsing failed\n");*/
-        /*return 0;*/
-    /*}*/
-
-    /*for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {*/
-        /*printf("%s ", i->token);*/
-    /*}*/
-    /*putchar('\n');*/
-
-    char as[128], bs[128];
-    scanf("%s", as);
-    scanf("%s", bs);
-
-    for (int i = 0; as[i]; ++i) {
-        as[i] = toupper(as[i]);
+    if (!parse(expr, infix)) {
+        fprintf(stderr, "Parsing failed\n");
+        return 0;
     }
 
-    for (int i = 0; bs[i]; ++i) {
-        bs[i] = toupper(bs[i]);
+    Fraction numStack[maxExprLen];
+    int numNum = 0;
+    char operStack[maxExprLen];
+    int operNum = 0;
+    int previsNum = 0;
+    int negativeFlag = 1;
+
+    int operPriority[256];
+    memset(operPriority, -1, sizeof(operPriority));
+
+    operPriority['+'] = 0;
+    operPriority['-'] = 0;
+    operPriority['*'] = 1;
+    operPriority['/'] = 1;
+
+    for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
+
+        char *endptr = NULL;
+        long long thisNumber = strtoll(i->token, &endptr, 10);
+
+        if (endptr != i->token) {
+
+            Fraction thisFraction = { negativeFlag * thisNumber, 1 };
+            printf("%lld/%lld\n", thisFraction.numerator, thisFraction.denominator);
+            numStack[numNum++] = thisFraction;
+            negativeFlag = 1;
+            previsNum = 1;
+
+        } else {
+
+            const char oper = i->token[0];
+            switch (oper) {
+
+                case '(':
+                    operStack[operNum++] = oper;
+                    break;
+
+                case ')':
+
+                    while (operStack[operNum] != '(' && operNum) {
+
+                        checkNumStack();
+                        Fraction *b = numStack + (--numNum);
+                        printf("%lld/%lld\n", b->numerator, b->denominator);
+                        Fraction *a = numStack + (--numNum);
+                        printf("%lld/%lld\n", a->numerator, a->denominator);
+                        Fraction c;
+
+                        switch (operStack[operNum]) {
+                            case '+':
+                                c.numerator = a->numerator * b->denominator + a->numerator * b->denominator;
+                                c.denominator = a->denominator * b->denominator;
+                                break;
+                            case '-':
+                                c.numerator = a->numerator * b->denominator - a->numerator * b->denominator;
+                                c.denominator = a->denominator * b->denominator;
+                                break;
+                            case '*':
+                                c.numerator = a->numerator * b->numerator;
+                                c.denominator = a->denominator * b->denominator;
+                                break;
+                            case '/':
+                                c.numerator = a->numerator * b->denominator;
+                                c.denominator = a->denominator * b->numerator;
+                                break;
+                        }
+
+                        printf("%lld/%lld\n", c.numerator, c.denominator);
+
+                        reduce(&c);
+
+                        numStack[numNum++] = c;
+                        --operNum;
+                    }
+                    break;
+                default:
+
+                    if (operNum) {
+
+                        int operLevel = oper;
+                        int topOperLevel = operStack[operNum];
+
+                        if (operPriority[operLevel] <= operPriority[topOperLevel]) {
+
+                            while (operStack[operNum - 1] != '(' && operNum) {
+
+                                checkNumStack();
+                                Fraction *b = numStack + (--numNum);
+                                printf("b = %lld/%lld\n", b->numerator, b->denominator);
+                                Fraction *a = numStack + (--numNum);
+                                printf("a = %lld/%lld\n", a->numerator, a->denominator);
+                                Fraction c;
+
+                                switch (operStack[--operNum]) {
+                                    case '+':
+                                        c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
+                                        c.denominator = a->denominator * b->denominator;
+                                        break;
+                                    case '-':
+                                        c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
+                                        c.denominator = a->denominator * b->denominator;
+                                        break;
+                                    case '*':
+                                        c.numerator = a->numerator * b->numerator;
+                                        c.denominator = a->denominator * b->denominator;
+                                        break;
+                                    case '/':
+                                        c.numerator = a->numerator * b->denominator;
+                                        c.denominator = a->denominator * b->numerator;
+                                        break;
+                                }
+
+                                reduce(&c);
+
+                                numStack[numNum++] = c;
+                                printf("%lld/%lld\n", c.numerator, c.denominator);
+                            }
+
+                            operStack[operNum++] = oper;
+                        } else {
+                            operStack[operNum++] = oper;
+                        }
+                    } else {
+                        operStack[operNum++] = oper;
+                    }
+                    break;
+            }
+        }
     }
 
-    baseNumber a = createBaseNum(as);
-    baseNumber b = createBaseNum(bs);
+    while (operStack[operNum - 1] != '(' && operNum) {
 
-    baseNumber c = createBaseNum("0");
+        checkNumStack();
+        Fraction *b = numStack + (--numNum);
+        printf("b = %lld/%lld\n", b->numerator, b->denominator);
+        Fraction *a = numStack + (--numNum);
+        printf("a = %lld/%lld\n", a->numerator, a->denominator);
+        Fraction c;
 
-    /*printf("a = (%d) ", a.sign);*/
-    /*printBaseNum(&a);*/
-    /*putchar('\n');*/
+        switch (operStack[--operNum]) {
+            case '+':
+                c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
+                c.denominator = a->denominator * b->denominator;
+                break;
+            case '-':
+                c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
+                c.denominator = a->denominator * b->denominator;
+                break;
+            case '*':
+                c.numerator = a->numerator * b->numerator;
+                c.denominator = a->denominator * b->denominator;
+                break;
+            case '/':
+                c.numerator = a->numerator * b->denominator;
+                c.denominator = a->denominator * b->numerator;
+                break;
+        }
 
-    /*printf("b = (%d) ", b.sign);*/
-    /*printBaseNum(&b);*/
-    /*putchar('\n');*/
+        reduce(&c);
 
-    printf("a comp b? %d\n", baseAbsComp(&a, &b));
+        numStack[numNum++] = c;
+        printf("%lld/%lld\n", c.numerator, c.denominator);
+    }
 
-    c = baseAdd(&a, &b);
+    while (numNum) {
+        Fraction result = numStack[--numNum];
+        printf("%lld/%lld\n", result.numerator, result.denominator);
+    }
 
-    printf("c = ");
-    printBaseNum(&c);
-    putchar('\n');
-    /*for (int i = 0; i != 128; ++ i) {*/
-        /*printf("%d ", c.xdigits[i]);*/
-    /*}*/
-    /*putchar('\n');*/
+    while (operNum) {
+        printf("%c\n", operStack[--operNum]);
+    }
 
-    c = baseSub(&a, &b);
-
-    printf("c = ");
-    printBaseNum(&c);
-    putchar('\n');
-    /*for (int i = 0; i != 128; ++ i) {*/
-        /*printf("%d ", c.xdigits[i]);*/
-    /*}*/
-    /*putchar('\n');*/
-
-    /*c = baseMult(a, b);*/
-
-    /*printf("c = ");*/
-    /*printBaseNum(&b);*/
-    /*putchar('\n');*/
-
-    /*c = baseMod(a, b);*/
-
-    /*printf("c = ");*/
-    /*printBaseNum(&b);*/
-    /*putchar('\n');*/
-
-    /*freeAllTokenNodes(infix);*/
+    freeAllTokenNodes(infix);
 
     return 1;
 }
