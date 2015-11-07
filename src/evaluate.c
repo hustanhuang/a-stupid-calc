@@ -37,9 +37,9 @@ int evaluate(const char *expr)
     memset(operPriority, -1, sizeof(operPriority));
 
     operPriority['+'] = 0;
-    operPriority['-'] = 0;
-    operPriority['*'] = 1;
-    operPriority['/'] = 1;
+    operPriority['-'] = 1;
+    operPriority['*'] = 2;
+    operPriority['/'] = 3;
 
     for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
 
