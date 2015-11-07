@@ -144,6 +144,10 @@ baseNumber baseDoSub(const baseNumber *a, const baseNumber *b)
         *thisDigit += a->xdigits[a->len - 1 - i] - b->xdigits[b->len - 1 - i];
         thisDigit[-1] += *thisDigit / 16;
         *thisDigit %= 16;
+        if (*thisDigit < 0) {
+            thisDigit[-1] -= 1;
+            *thisDigit += 16;
+        }
         --thisDigit;
     }
 
@@ -151,6 +155,10 @@ baseNumber baseDoSub(const baseNumber *a, const baseNumber *b)
         *thisDigit += a->xdigits[longLen - 1 - i];
         thisDigit[-1] += *thisDigit / 16;
         *thisDigit %= 16;
+        if (*thisDigit < 0) {
+            thisDigit[-1] -= 1;
+            *thisDigit += 16;
+        }
         --thisDigit;
     }
 
