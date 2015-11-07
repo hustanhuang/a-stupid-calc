@@ -30,9 +30,7 @@ void freeTokenNode(tokenNode *restrict thisNode)
 
 void freeAllTokenNodes(tokenNode *restrict thisNode)
 {
-    while (thisNode->prev) {
-        thisNode = thisNode->prev;
-    }
+    //this will have trouble if the chain list is a cycle
     while (thisNode->next) {
         thisNode = thisNode->next;
         free(thisNode->prev);

@@ -14,33 +14,27 @@
 #include "numberCalc.h"
 #include "numStack.h"
 
-#define checkNumStack(); if (numNum < 2) { fprintf(stderr, "No enough numbers.\n"); return 0;}
+#include "operStack.h"
+
+#define checkNumStack(); if (numNum < 2) { fprintf(stderr, "No enough numbers\n"); return 0;}
+
+int calculate();
+
+int calculatingCycle();
 
 int evaluate(const char *expr)
 {
+    //parse the expression
     tokenNode *infix = createTokenNode();
     addAfterTokenNode(infix);
-
     if (!parse(expr, infix)) {
         fprintf(stderr, "Parsing failed\n");
         return 0;
     }
 
-    Fraction numStack[maxExprLen];
-    int numNum = 0;
-    char operStack[maxExprLen];
-    int operNum = 0;
-    int previsNum = 0;
-    int negativeFlag = 1;
+    initOperPriority();
 
-    int operPriority[256];
-    memset(operPriority, -1, sizeof(operPriority));
-
-    operPriority['+'] = 0;
-    operPriority['-'] = 1;
-    operPriority['*'] = 2;
-    operPriority['/'] = 3;
-
+    //calculate
     for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
 
         char *endptr = NULL;
@@ -48,11 +42,7 @@ int evaluate(const char *expr)
 
         if (endptr != i->token) {
 
-            Fraction thisFraction = { negativeFlag * thisNumber, 1 };
-            printf("%lld/%lld\n", thisFraction.numerator, thisFraction.denominator);
-            numStack[numNum++] = thisFraction;
-            negativeFlag = 1;
-            previsNum = 1;
+            pushNum(createFraction(thisNumber, 1));
 
         } else {
 
@@ -60,153 +50,120 @@ int evaluate(const char *expr)
             switch (oper) {
 
                 case '(':
-                    operStack[operNum++] = oper;
+                    pushOper(oper);
                     break;
 
                 case ')':
-
-                    while (operStack[operNum - 1] != '(' && operNum) {
-
-                        checkNumStack();
-                        Fraction *b = numStack + (--numNum);
-                        printf("b = %lld/%lld\n", b->numerator, b->denominator);
-                        Fraction *a = numStack + (--numNum);
-                        printf("a = %lld/%lld\n", a->numerator, a->denominator);
-                        Fraction c;
-                        printf("%c\n", operStack[operNum - 1]);
-
-                        switch (operStack[--operNum]) {
-                            case '+':
-                                c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
-                                c.denominator = a->denominator * b->denominator;
-                                break;
-                            case '-':
-                                c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
-                                c.denominator = a->denominator * b->denominator;
-                                break;
-                            case '*':
-                                c.numerator = a->numerator * b->numerator;
-                                c.denominator = a->denominator * b->denominator;
-                                break;
-                            case '/':
-                                c.numerator = a->numerator * b->denominator;
-                                c.denominator = a->denominator * b->numerator;
-                                break;
-                        }
-
-                        printf("%lld/%lld\n", c.numerator, c.denominator);
-
-                        reduce(&c);
-
-                        numStack[numNum++] = c;
+                    if(!calculatingCycle()) {
+                        fprintf(stderr, "Calculating failed\n");
+                        return 0;
                     }
 
-                    --operNum;
+                    //pop the (
+                    popOper();
                     break;
+
                 default:
 
+                    //there is an operator at the top of the stack
                     if (operNum) {
 
-                        int operIndex = oper;
-                        int topOperIndex = operStack[operNum - 1];
+                        //compare the priorities of oper and topOper
+                        if (operPriority[(int)oper] < operPriority[(int)getTopOper()]) {
 
-                        if (operPriority[operIndex] < operPriority[topOperIndex]) {
-
-                            while (operStack[operNum - 1] != '(' && operNum) {
-
-                                checkNumStack();
-                                Fraction *b = numStack + (--numNum);
-                                printf("b = %lld/%lld\n", b->numerator, b->denominator);
-                                Fraction *a = numStack + (--numNum);
-                                printf("a = %lld/%lld\n", a->numerator, a->denominator);
-                                Fraction c;
-
-                                switch (operStack[--operNum]) {
-                                    case '+':
-                                        c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
-                                        c.denominator = a->denominator * b->denominator;
-                                        break;
-                                    case '-':
-                                        c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
-                                        c.denominator = a->denominator * b->denominator;
-                                        break;
-                                    case '*':
-                                        c.numerator = a->numerator * b->numerator;
-                                        c.denominator = a->denominator * b->denominator;
-                                        break;
-                                    case '/':
-                                        c.numerator = a->numerator * b->denominator;
-                                        c.denominator = a->denominator * b->numerator;
-                                        break;
-                                }
-
-                                reduce(&c);
-
-                                numStack[numNum++] = c;
-                                printf("%lld/%lld\n", c.numerator, c.denominator);
+                            //pop all and calc
+                            if(!calculatingCycle()) {
+                                fprintf(stderr, "Calculating failed\n");
+                                return 0;
                             }
+                            pushOper(oper);
 
-                            operStack[operNum++] = oper;
+                        } else if (operPriority[(int)oper] == operPriority[(int)getTopOper()]) {
+
+                            //pop one and calc to ensure the calulation is done l2r
+                            if(!calculate()) {
+                                fprintf(stderr, "Calculating failed\n");
+                                return 0;
+                            }
+                            pushOper(oper);
+
                         } else {
-                            operStack[operNum++] = oper;
+                            pushOper(oper);
                         }
+
+                    //the operator stack is empty
                     } else {
-                        operStack[operNum++] = oper;
+                        pushOper(oper);
                     }
                     break;
             }
         }
     }
 
-    while (operStack[operNum - 1] != '(' && operNum) {
-
-        checkNumStack();
-        Fraction *b = numStack + (--numNum);
-        printf("b = %lld/%lld\n", b->numerator, b->denominator);
-        Fraction *a = numStack + (--numNum);
-        printf("a = %lld/%lld\n", a->numerator, a->denominator);
-        Fraction c;
-
-        switch (operStack[--operNum]) {
-            case '+':
-                c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
-                c.denominator = a->denominator * b->denominator;
-                break;
-            case '-':
-                c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
-                c.denominator = a->denominator * b->denominator;
-                break;
-            case '*':
-                c.numerator = a->numerator * b->numerator;
-                c.denominator = a->denominator * b->denominator;
-                break;
-            case '/':
-                c.numerator = a->numerator * b->denominator;
-                c.denominator = a->denominator * b->numerator;
-                break;
-        }
-
-        reduce(&c);
-
-        numStack[numNum++] = c;
-        printf("%lld/%lld\n", c.numerator, c.denominator);
+    //pop the left operators and calc
+    if(!calculatingCycle()) {
+        fprintf(stderr, "Calculating failed\n");
+        return 0;
     }
 
+    //pop the results
     while (numNum) {
-        Fraction result = numStack[--numNum];
-        printf("%lld", result.numerator);
-        if (result.denominator == 1) {
+        Fraction *result = popNum();
+        printf("%lld", result->numerator);
+        if (result->denominator == 1) {
             putchar('\n');
         } else {
-            printf("%lld\n", result.denominator);
+            printf("%lld\n", result->denominator);
         }
     }
 
-    while (operNum) {
-        printf("%c\n", operStack[--operNum]);
-    }
-
+    //free the tokens allocated
     freeAllTokenNodes(infix);
+
+    return 1;
+}
+
+int calculate()
+{
+    checkNumStack();
+    Fraction *b = popNum();
+    Fraction *a = popNum();
+    Fraction c = createFraction(0, 0);
+
+    switch (popOper()) {
+        case '+':
+            c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
+            c.denominator = a->denominator * b->denominator;
+            break;
+        case '-':
+            c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
+            c.denominator = a->denominator * b->denominator;
+            break;
+        case '*':
+            c.numerator = a->numerator * b->numerator;
+            c.denominator = a->denominator * b->denominator;
+            break;
+        case '/':
+            c.numerator = a->numerator * b->denominator;
+            c.denominator = a->denominator * b->numerator;
+            break;
+    }
+    reduce(&c);
+
+    pushNum(c);
+
+    return 1;
+}
+
+
+int calculatingCycle()
+{
+    while (getTopOper() != '(' && operNum) {
+        if (!calculate()) {
+            fprintf(stderr, "Failed when doing operation %c\n", getTopOper());
+            return 0;
+        }
+    }
 
     return 1;
 }
