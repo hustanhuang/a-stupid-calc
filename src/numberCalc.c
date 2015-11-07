@@ -1,5 +1,7 @@
 #include "numberCalc.h"
 
+#include <stdio.h>
+
 int baseAbsComp(const baseNumber *a, const baseNumber *b)
 {
     if (a->len == b->len) {
@@ -113,7 +115,7 @@ baseNumber baseDoAdd(const baseNumber *a, const baseNumber *b)
     int shortLen = shorter->len;
     result.len = longLen + 1;
 
-    char *thisDigit = result.xdigits + result.len - 1;
+    unsigned char *thisDigit = result.xdigits + result.len - 1;
     for (int i = 0; i != shortLen; ++i) {
         *thisDigit += a->xdigits[a->len - 1 - i] + b->xdigits[b->len - 1 - i];
         thisDigit[-1] += *thisDigit / 16;
@@ -139,7 +141,7 @@ baseNumber baseDoSub(const baseNumber *a, const baseNumber *b)
     int shortLen = b->len;
     result.len = longLen + 1;
 
-    char *thisDigit = result.xdigits + result.len - 1;
+    unsigned char *thisDigit = result.xdigits + result.len - 1;
     for (int i = 0; i != shortLen; ++i) {
         *thisDigit += a->xdigits[a->len - 1 - i] - b->xdigits[b->len - 1 - i];
         thisDigit[-1] += *thisDigit / 16;
@@ -163,5 +165,39 @@ baseNumber baseDoSub(const baseNumber *a, const baseNumber *b)
     }
 
     removeZero(&result);
+    return result;
+}
+
+baseNumber baseMult(const baseNumber *a, const baseNumber *b)
+{
+    baseNumber result = createBaseNum("0");
+    const baseNumber *longer = (a->len > b->len ? a : b);
+    const baseNumber *shorter = (a->len < b->len ? a : b);
+    int longLen = longer->len;
+    int shortLen = shorter->len;
+
+    if (a->sign && b->sign) {
+
+        //set the sign
+        result.sign = a->sign * b->sign;
+
+        //set the new length
+        result.len = longLen + shortLen;
+
+        unsigned char *thisLine = result.xdigits + result.len - 1;
+        for (int i = 0; i != shortLen; ++i) {
+            unsigned char *thisDigit = thisLine;
+            for (int j = 0; j != longLen; ++j) {
+                *thisDigit += shorter->xdigits[shorter->len - 1 - i] * longer->xdigits[longer->len - 1 - j];
+                thisDigit[-1] += *thisDigit / 16;
+                *thisDigit %= 16;
+                --thisDigit;
+            }
+            --thisLine;
+        }
+
+        removeZero(&result);
+    }
+
     return result;
 }

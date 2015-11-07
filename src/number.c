@@ -7,15 +7,31 @@
 
 #include "defines.h"
 
+size_t ustrlen(const unsigned char *str)
+{
+    size_t len = 0;
+    while (*(str++)) {
+        ++len;
+    }
+    return len;
+}
+
+void ustrcpy(unsigned char *dest, const char *src)
+{
+    while ((*(dest++) = *(src++)))
+        ;//do nothing
+    return;
+}
+
 void shrinkBaseBin(baseNumber *number)
 {   
     //2^4 == 16^1
     int powof2[4] = { 1, 2, 4, 8 };
 
-    int sectionNum = strlen(number->xdigits) / 4;
+    int sectionNum = ustrlen(number->xdigits) / 4;
     number->len = sectionNum;
 
-    char *iter = number->xdigits;
+    unsigned char *iter = number->xdigits;
     for (int i = 0; i != sectionNum; ++i) {
 
         //get the value of each section
@@ -41,11 +57,11 @@ void shrinkBaseOct(baseNumber *number)
     int powof8[4] = { 1, 8, 64, 512 };
     int powof16[3] = { 1, 16, 256 };
 
-    int sectionNum = strlen(number->xdigits) / 4;
+    int sectionNum = ustrlen(number->xdigits) / 4;
     const int segmentNum = 3;
     number->len = sectionNum * 3;
 
-    char *iter = number->xdigits;
+    unsigned char *iter = number->xdigits;
     for (int i = 0; i != sectionNum; ++i) {
 
         //get the value of each section
@@ -74,8 +90,8 @@ void shrinkBaseOct(baseNumber *number)
 
 void shrinkBaseHex(baseNumber *number)
 {
-    char *iter = number->xdigits;
-    number->len = strlen(number->xdigits);
+    unsigned char *iter = number->xdigits;
+    number->len = ustrlen(number->xdigits);
 
     while (*iter) {
         if (isdigit(*iter)) {
@@ -130,7 +146,7 @@ baseNumber createBaseNum(char *numstr)
             result.xdigits[i] = '0';
         }
 
-        strcpy(result.xdigits + placeHolderNum, numstr);
+        ustrcpy(result.xdigits + placeHolderNum, numstr);
         shrinkBaseBin(&result);
 
     } else if (*numstr == '0') {
@@ -144,7 +160,7 @@ baseNumber createBaseNum(char *numstr)
         //hex
         } else if (numstr[1] == 'X') {
 
-            strcpy(result.xdigits, numstr + 2);
+            ustrcpy(result.xdigits, numstr + 2);
             shrinkBaseHex(&result);
 
         //oct
@@ -156,7 +172,7 @@ baseNumber createBaseNum(char *numstr)
                 result.xdigits[i] = '0';
             }
 
-            strcpy(result.xdigits + placeHolderNum, numstr + 1);
+            ustrcpy(result.xdigits + placeHolderNum, numstr + 1);
             shrinkBaseOct(&result);
         } 
     }

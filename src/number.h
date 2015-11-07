@@ -5,7 +5,7 @@
 
 struct basenumber {
     int sign;
-    char xdigits[maxExprLen];
+    unsigned char xdigits[maxExprLen];
     int len;
 };
 

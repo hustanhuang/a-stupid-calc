@@ -14,9 +14,11 @@ int main()
 
     baseNumber c = createBaseNum("0");
 
+    printf("a = ");
     printBaseNum(&a);
     putchar('\n');
 
+    printf("b = ");
     printBaseNum(&b);
     putchar('\n');
 
@@ -30,9 +32,9 @@ int main()
     printBaseNum(&c);
     putchar('\n');
 
-    /*c = baseAdd(&a, &b);*/
-    /*printBaseNum(&c);*/
-    /*putchar('\n');*/
+    c = baseMult(&a, &b);
+    printBaseNum(&c);
+    putchar('\n');
 
     /*c = baseAdd(&a, &b);*/
     /*printBaseNum(&c);*/
