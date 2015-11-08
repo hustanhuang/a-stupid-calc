@@ -1,15 +1,17 @@
 #ifndef NUMSTACK_H_
 #define NUMSTACK_H_
 
+#include <inttypes.h>
 #include "defines.h"
 
 struct fraction {
-    long long numerator;
-    long long denominator;
+    intmax_t numerator;
+    intmax_t denominator;
 };
 
 typedef struct fraction Fraction;
 
+intmax_t createNumber(const char *str, char **endptr);
 Fraction createFraction();
 
 extern Fraction numStack[maxExprLen];
@@ -19,7 +21,7 @@ extern int numNum;
 #define popNum() (numStack + (--numNum))
 #define getTopNum() (numStack + numNum - 1)
 
-long long gcd(long long a, long long b);
+intmax_t gcd(intmax_t a, intmax_t b);
 
 void reduce(Fraction *thisFraction);
 

@@ -11,7 +11,7 @@ tokenNode *createTokenNode()
     return thisNode;
 }
 
-void freeTokenNode(tokenNode *restrict thisNode)
+void freeTokenNode(tokenNode *thisNode)
 {
     if (thisNode->prev && thisNode->next) {
         thisNode->prev->next = thisNode->next;
@@ -28,7 +28,7 @@ void freeTokenNode(tokenNode *restrict thisNode)
     return;
 }
 
-void freeAllTokenNodes(tokenNode *restrict thisNode)
+void freeAllTokenNodes(tokenNode *thisNode)
 {
     //this will have trouble if the chain list is a cycle
     while (thisNode->next) {

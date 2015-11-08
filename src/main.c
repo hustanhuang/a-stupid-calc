@@ -39,6 +39,7 @@ int main (int argc, char **argv)
     if (eflag) {
 
         //evaluate the first expression
+        printf("%s = ", expr);
         if (!evaluate(expr)) {
             fprintf(stderr, "Evaluation failed\n");
         }
@@ -48,6 +49,8 @@ int main (int argc, char **argv)
         while (i != argc) {
 
             expr = argv[i];
+
+            printf("%s = ", expr);
             if (!evaluate(expr)) {
                 fprintf(stderr, "Evaluation failed\n");
             }

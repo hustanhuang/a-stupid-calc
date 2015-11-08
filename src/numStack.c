@@ -1,6 +1,10 @@
 #include "numStack.h"
 
-Fraction createFraction(long long numerator, long long denominator)
+intmax_t createNumber(const char *str, char **endptr) {
+    return strtoimax(str, endptr, 0);
+}
+
+Fraction createFraction(intmax_t numerator, intmax_t denominator)
 {
     Fraction newFraction = { numerator, denominator };
     return newFraction;
@@ -9,13 +13,13 @@ Fraction createFraction(long long numerator, long long denominator)
 Fraction numStack[maxExprLen];
 int numNum;
 
-long long gcd(long long a, long long b)
+intmax_t gcd(intmax_t a, intmax_t b)
 {
     //ensure that the gcd is a positive number
     if (a < 0) { a = -a; }
     if (b < 0) { b = -b; }
 
-    long long c = 1;
+    intmax_t c = 1;
     while (a != b) {
         c = (a > b ? a - b : b - a);
         a = b;
@@ -27,7 +31,7 @@ long long gcd(long long a, long long b)
 
 void reduce(Fraction *thisFraction)
 {
-    long long divisor = gcd(thisFraction->numerator, thisFraction->denominator);
+    intmax_t divisor = gcd(thisFraction->numerator, thisFraction->denominator);
 
     if (divisor == 0) {
         return;

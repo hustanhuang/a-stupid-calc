@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "defines.h"
 
@@ -37,7 +38,7 @@ int evaluate(const char *expr)
     for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
 
         char *endptr = NULL;
-        long long thisNumber = strtoll(i->token, &endptr, 0);
+        intmax_t thisNumber = createNumber(i->token, &endptr);
 
         if (endptr != i->token) {
 
@@ -120,7 +121,12 @@ int evaluate(const char *expr)
     //pop the results
     while (numNum) {
         Fraction *result = popNum();
-        printf("%lld/%lld\n", result->numerator, result->denominator);
+        printf("%jd", result->numerator);
+        if (result->denominator != 1) {
+            printf("/%jd\n", result->denominator);
+        } else {
+            putchar('\n');
+        }
     }
 
     //free the tokens allocated
