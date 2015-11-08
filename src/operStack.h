@@ -10,10 +10,8 @@ void initOperPriority();
 extern char operStack[maxExprLen];
 extern int operNum;
 
-#define pushOper(c) operStack[operNum++] = c
-
-#define popOper() operStack[--operNum]
-
-#define getTopOper() operStack[operNum - 1]
+#define pushOper(c) (operStack[operNum++] = c)
+#define popOper() (operStack[--operNum])
+#define getTopOper() (operStack[operNum - 1])
 
 #endif

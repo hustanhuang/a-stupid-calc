@@ -15,8 +15,9 @@ Fraction createFraction();
 extern Fraction numStack[maxExprLen];
 extern int numNum;
 
-#define pushNum(n) numStack[numNum++] = n
-#define popNum() numStack + (--numNum)
+#define pushNum(n) (numStack[numNum++] = n)
+#define popNum() (numStack + (--numNum))
+#define getTopNum() (numStack + numNum - 1)
 
 long long gcd(long long a, long long b);
 

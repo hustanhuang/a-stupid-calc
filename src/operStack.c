@@ -8,6 +8,8 @@ void initOperPriority()
     operPriority['-'] = 1;
     operPriority['*'] = 2;
     operPriority['/'] = 2;
+    operPriority['P'] = 3;
+    operPriority['N'] = 3;
     return;
 }
 
