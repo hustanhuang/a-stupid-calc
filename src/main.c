@@ -123,8 +123,6 @@ int main (int argc, char **argv)
                 //if encountered EOF then break the loop and quit
                 if (fout == stdout) {
                     fprintf(fout, "exit\n");
-                } else {
-                    fputc(EOF, fout);
                 }
                 break;
             }
