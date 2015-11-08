@@ -37,6 +37,5 @@ clean:
 	rm *.o *~
 
 cleanup:
-	rm calc mptest
 	rm -R *.dSYM
-	make clean
+	rm calc mptest
