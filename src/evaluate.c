@@ -2,15 +2,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "defines.h"
 
 #include "tokens.h"
 #include "parser.h"
 
-#include "number.h"
-#include "numberCalc.h"
 #include "numStack.h"
 
 #include "operStack.h"
