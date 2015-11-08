@@ -29,6 +29,10 @@ void reduce(Fraction *thisFraction)
 {
     long long divisor = gcd(thisFraction->numerator, thisFraction->denominator);
 
+    if (divisor == 0) {
+        return;
+    }
+
     if (divisor != 1) {
         thisFraction->numerator /= divisor;
         thisFraction->denominator /= divisor;
