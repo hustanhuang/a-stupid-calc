@@ -1,6 +1,5 @@
 #include "evaluate.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 
@@ -21,7 +20,7 @@ int calculate();
 
 int calculatingCycle();
 
-int evaluate(const char *expr)
+int evaluate(FILE *fout, const char *expr)
 {
     //parse the expression
     tokenNode *infix = createTokenNode();
@@ -140,11 +139,11 @@ int evaluate(const char *expr)
         case 1:
             result = popNum();
             lastResult = *result;
-            printf("%lld", result->numerator);
+            fprintf(fout, "%lld", result->numerator);
             if (result->denominator != 1) {
-                printf("/%lld\n", result->denominator);
+                fprintf(fout, "/%lld\n", result->denominator);
             } else {
-                putchar('\n');
+                fputc('\n', fout);
             }
             break;
         default:

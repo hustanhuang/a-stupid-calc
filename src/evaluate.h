@@ -1,6 +1,8 @@
 #ifndef EVALUATE_H_
 #define EVALUATE_H_
 
-int evaluate(const char *expr);
+#include <stdio.h>
+
+int evaluate(FILE *fout, const char *expr);
 
 #endif
