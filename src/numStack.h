@@ -5,16 +5,16 @@
 #include "defines.h"
 
 struct fraction {
-    intmax_t numerator;
-    intmax_t denominator;
+    long long numerator;
+    long long denominator;
 };
 
 typedef struct fraction Fraction;
 
 extern int readNumErr;
-intmax_t createNumber(const char *str, char **endptr);
+long long createNumber(const char *str, char **endptr);
 
-Fraction createFraction(intmax_t numerator, intmax_t denominator);
+Fraction createFraction(long long numerator, long long denominator);
 
 extern Fraction numStack[maxExprLen];
 extern int numNum;
@@ -23,7 +23,7 @@ extern int numNum;
 #define popNum() (numStack + (--numNum))
 #define getTopNum() (numStack + numNum - 1)
 
-intmax_t gcd(intmax_t a, intmax_t b);
+long long gcd(long long a, long long b);
 
 void reduce(Fraction *thisFraction);
 

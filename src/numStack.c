@@ -6,7 +6,7 @@
 
 int readNumErr = 0;
 
-intmax_t createNumber(const char *str, char **endptr) {
+long long createNumber(const char *str, char **endptr) {
     int base = 0;
     if (str[0] == '0') {
         switch (str[1]) {
@@ -30,7 +30,7 @@ intmax_t createNumber(const char *str, char **endptr) {
         }
     }
 
-    intmax_t result = strtoimax(str, endptr, base);
+    long long result = strtoimax(str, endptr, base);
 
     if (*endptr != str && *endptr != str + strlen(str)) {
         fprintf(stderr, "Error number: %s\n", str);
@@ -40,7 +40,7 @@ intmax_t createNumber(const char *str, char **endptr) {
     return result;
 }
 
-Fraction createFraction(intmax_t numerator, intmax_t denominator)
+Fraction createFraction(long long numerator, long long denominator)
 {
     Fraction newFraction = { numerator, denominator };
     return newFraction;
@@ -49,13 +49,13 @@ Fraction createFraction(intmax_t numerator, intmax_t denominator)
 Fraction numStack[maxExprLen];
 int numNum;
 
-intmax_t gcd(intmax_t a, intmax_t b)
+long long gcd(long long a, long long b)
 {
     //ensure that the gcd is a positive number
     if (a < 0) { a = -a; }
     if (b < 0) { b = -b; }
 
-    intmax_t c = 1;
+    long long c = 1;
     while (a != b) {
         c = (a > b ? a - b : b - a);
         a = b;
@@ -67,7 +67,7 @@ intmax_t gcd(intmax_t a, intmax_t b)
 
 void reduce(Fraction *thisFraction)
 {
-    intmax_t divisor = gcd(thisFraction->numerator, thisFraction->denominator);
+    long long divisor = gcd(thisFraction->numerator, thisFraction->denominator);
 
     if (divisor == 0) {
         return;

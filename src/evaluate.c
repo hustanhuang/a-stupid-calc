@@ -40,7 +40,7 @@ int evaluate(const char *expr)
     for (tokenNode *i = infix->next; i->token != NULL; i = i->next) {
 
         char *endptr = NULL;
-        intmax_t thisNumber = createNumber(i->token, &endptr);
+        long long thisNumber = createNumber(i->token, &endptr);
         if (readNumErr) {
             fprintf(stderr, "Failed reading a number\n");
             return 0;
@@ -140,9 +140,9 @@ int evaluate(const char *expr)
         case 1:
             result = popNum();
             lastResult = *result;
-            printf("%jd", result->numerator);
+            printf("%lld", result->numerator);
             if (result->denominator != 1) {
-                printf("/%jd\n", result->denominator);
+                printf("/%lld\n", result->denominator);
             } else {
                 putchar('\n');
             }
@@ -172,7 +172,9 @@ int calculate()
             c.numerator = a->numerator * b->denominator + b->numerator * a->denominator;
             c.denominator = a->denominator * b->denominator;
 
-            reduce(&c);
+            if (c.denominator != 1 && c.denominator != 0) {
+                reduce(&c);
+            }
             pushNum(c);
             break;
 
@@ -184,7 +186,9 @@ int calculate()
             c.numerator = a->numerator * b->denominator - b->numerator * a->denominator;
             c.denominator = a->denominator * b->denominator;
 
-            reduce(&c);
+            if (c.denominator != 1 && c.denominator != 0) {
+                reduce(&c);
+            }
             pushNum(c);
             break;
 
@@ -196,7 +200,9 @@ int calculate()
             c.numerator = a->numerator * b->numerator;
             c.denominator = a->denominator * b->denominator;
 
-            reduce(&c);
+            if (c.denominator != 1 && c.denominator != 0) {
+                reduce(&c);
+            }
             pushNum(c);
             break;
 
@@ -208,7 +214,9 @@ int calculate()
             c.numerator = a->numerator * b->denominator;
             c.denominator = a->denominator * b->numerator;
 
-            reduce(&c);
+            if (c.denominator != 1 && c.denominator != 0) {
+                reduce(&c);
+            }
             pushNum(c);
             break;
 
