@@ -109,8 +109,11 @@ int main (int argc, char **argv)
 
             //when entering the EOF, scanf may enter a infinite loop
             //this test solves this problem
-            if (scanf("%s", expr) != EOF) {
+            if (fscanf(fin, "%s", expr) != EOF) {
 
+                if (fin != stdin) {
+                    fprintf(fout, "%s = ", expr);
+                }
                 if (!evaluate(fout, expr)) {
                     fprintf(stderr, "Evaluation failed\n");
                 }

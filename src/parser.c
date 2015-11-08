@@ -7,7 +7,7 @@
 
 #include "defines.h"
 
-#define errorSymbol(c) fprintf(stderr, "Illegal symbol: %c\n", c)
+#define errorSymbol(c) fprintf(stderr, "Illegal symbol: %c(%d)\n", c, c)
 
 int parse(const char *expr, tokenNode *infix)
 {
