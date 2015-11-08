@@ -1,7 +1,43 @@
 #include "numStack.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int readNumErr = 0;
+
 intmax_t createNumber(const char *str, char **endptr) {
-    return strtoimax(str, endptr, 0);
+    int base = 0;
+    if (str[0] == '0') {
+        switch (str[1]) {
+            case '0':
+                base = 2;
+                break;
+
+            case 'x': case 'X':
+                base = 16;
+                break;
+
+            default:
+                base = 8;
+                break;
+        }
+    } else if (isalpha(str[0])) {
+        if (*endptr != str && *endptr != str + strlen(str)) {
+            fprintf(stderr, "Error number: %s\n", str);
+            readNumErr = 1;
+            return 0;
+        }
+    }
+
+    intmax_t result = strtoimax(str, endptr, base);
+
+    if (*endptr != str && *endptr != str + strlen(str)) {
+        fprintf(stderr, "Error number: %s\n", str);
+        readNumErr = 1;
+        return 0;
+    }
+    return result;
 }
 
 Fraction createFraction(intmax_t numerator, intmax_t denominator)

@@ -11,8 +11,10 @@ struct fraction {
 
 typedef struct fraction Fraction;
 
+extern int readNumErr;
 intmax_t createNumber(const char *str, char **endptr);
-Fraction createFraction();
+
+Fraction createFraction(intmax_t numerator, intmax_t denominator);
 
 extern Fraction numStack[maxExprLen];
 extern int numNum;

@@ -15,6 +15,8 @@
 
 #define checkNumStack(n); if (numNum < n) { fprintf(stderr, "No enough numbers: need at least %d numbers\n", n); return 0;}
 
+Fraction lastResult = {0, 0};
+
 int calculate();
 
 int calculatingCycle();
@@ -39,6 +41,10 @@ int evaluate(const char *expr)
 
         char *endptr = NULL;
         intmax_t thisNumber = createNumber(i->token, &endptr);
+        if (readNumErr) {
+            fprintf(stderr, "Failed reading a number\n");
+            return 0;
+        }
 
         if (endptr != i->token) {
 
@@ -50,8 +56,14 @@ int evaluate(const char *expr)
             char oper = i->token[0];
             switch (oper) {
 
+                case '_':
+                    pushNum(lastResult);
+                    previsnum = 1;
+                    break;
+
                 case '(':
                     pushOper(oper);
+                    previsnum = 0;
                     break;
 
                 case ')':
@@ -62,6 +74,7 @@ int evaluate(const char *expr)
 
                     //pop the (
                     popOper();
+                    previsnum = 0;
                     break;
 
                 default:
@@ -106,9 +119,9 @@ int evaluate(const char *expr)
                     } else {
                         pushOper(oper);
                     }
+                    previsnum = 0;
                     break;
             }
-            previsnum = 0;
         }
     }
 
@@ -118,15 +131,25 @@ int evaluate(const char *expr)
         return 0;
     }
 
-    //pop the results
-    while (numNum) {
-        Fraction *result = popNum();
-        printf("%jd", result->numerator);
-        if (result->denominator != 1) {
-            printf("/%jd\n", result->denominator);
-        } else {
-            putchar('\n');
-        }
+    //pop the result
+    Fraction *result = NULL;
+    switch (numNum) {
+        case 0:
+            fprintf(stderr, "Get no result\n");
+            return 0;
+        case 1:
+            result = popNum();
+            lastResult = *result;
+            printf("%jd", result->numerator);
+            if (result->denominator != 1) {
+                printf("/%jd\n", result->denominator);
+            } else {
+                putchar('\n');
+            }
+            break;
+        default:
+            fprintf(stderr, "Get multiple results\n");
+            return 0;
     }
 
     //free the tokens allocated

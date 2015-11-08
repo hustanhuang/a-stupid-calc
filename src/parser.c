@@ -30,8 +30,9 @@ int parse(const char *expr, tokenNode *infix)
             //processing the operators and the illegal symbols
             switch (*c) {
 
+                case '_':
                 case '+': case '-': 
-                case '*': case '/': case '%':
+                case '*': case '/':
                 case '(': case ')':
                     *c = ' ';
                     break;
