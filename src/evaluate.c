@@ -42,6 +42,7 @@ int evaluate(FILE *fout, const char *expr)
         long long thisNumber = createNumber(i->token, &endptr);
         if (readNumErr) {
             fprintf(stderr, "Failed reading a number\n");
+            freeAllTokenNodes(infix);
             return 0;
         }
 
@@ -68,6 +69,7 @@ int evaluate(FILE *fout, const char *expr)
                 case ')':
                     if(!calculatingCycle()) {
                         fprintf(stderr, "Calculating failed\n");
+                        freeAllTokenNodes(infix);
                         return 0;
                     }
 
@@ -96,6 +98,7 @@ int evaluate(FILE *fout, const char *expr)
                             //pop all and calc
                             if(!calculatingCycle()) {
                                 fprintf(stderr, "Calculating failed\n");
+                                freeAllTokenNodes(infix);
                                 return 0;
                             }
                             pushOper(oper);
@@ -106,6 +109,7 @@ int evaluate(FILE *fout, const char *expr)
                             //the P and N (aka +, -) are done r2l
                             if(!calculate()) {
                                 fprintf(stderr, "Calculating failed\n");
+                                freeAllTokenNodes(infix);
                                 return 0;
                             }
                             pushOper(oper);
@@ -127,6 +131,7 @@ int evaluate(FILE *fout, const char *expr)
     //pop the left operators and calc
     if(!calculatingCycle()) {
         fprintf(stderr, "Calculating failed\n");
+        freeAllTokenNodes(infix);
         return 0;
     }
 
@@ -135,6 +140,7 @@ int evaluate(FILE *fout, const char *expr)
     switch (numNum) {
         case 0:
             fprintf(stderr, "Get no result\n");
+            freeAllTokenNodes(infix);
             return 0;
         case 1:
             result = popNum();
@@ -148,10 +154,10 @@ int evaluate(FILE *fout, const char *expr)
             break;
         default:
             fprintf(stderr, "Get multiple results\n");
+            freeAllTokenNodes(infix);
             return 0;
     }
 
-    //free the tokens allocated
     freeAllTokenNodes(infix);
 
     return 1;

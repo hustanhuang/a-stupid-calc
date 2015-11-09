@@ -47,27 +47,24 @@ int parse(const char *expr, tokenNode *infix)
     //slice the tokens
     for (size_t i = 0; i != len; ++i) {
 
+        infix = addAfterTokenNode(infix);
+        infix->token = malloc(sizeof(char) * (len + 1));
+
         //use a temp array to construct a string
-        char *tempToken = malloc(sizeof(char) * (len + 1));
-        memset(tempToken, 0, sizeof(char) * (len + 1));
+        memset(infix->token, 0, sizeof(char) * (len + 1));
 
         if (noOperExpr[i] == ' ') {
 
-            *tempToken = expr[i];
-            infix = addAfterTokenNode(infix);
-            infix->token = tempToken;
+            infix->token[0] = expr[i];
 
         } else {
 
-            sscanf(noOperExpr + i, "%s", tempToken);
+            sscanf(noOperExpr + i, "%s", infix->token);
 
             //ensure all characters are capital
-            for (size_t j = 0; j != strlen(tempToken); ++j) {
-                tempToken[j] = toupper(tempToken[j]);
+            for (size_t j = 0; j != strlen(infix->token); ++j) {
+                infix->token[j] = toupper(infix->token[j]);
             }
-
-            infix = addAfterTokenNode(infix);
-            infix->token = tempToken;
 
             //move i to the place where the next operator occurs
             //or to the end of the string
