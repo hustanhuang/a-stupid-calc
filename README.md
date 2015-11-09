@@ -36,6 +36,7 @@ C语言是一门美妙的语言，我们要（努力地）像使用母语一样�
 
 ## a-stupid-calc
 
+```
 usage: calc [-f input_file] [-o output_file] [-e] [expression] ...
 Options and arguments:
 -f     : specify the input file
@@ -47,3 +48,4 @@ Expressions output:
     If the input or output is not given by the standard i/o, the expressions
     themselves would also be printed.
     The expressions would also be printed under the Evaluating mode.
+```
