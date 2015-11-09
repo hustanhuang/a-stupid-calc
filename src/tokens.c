@@ -11,30 +11,15 @@ tokenNode *createTokenNode()
     return thisNode;
 }
 
-void freeTokenNode(tokenNode *thisNode)
-{
-    if (thisNode->prev && thisNode->next) {
-        thisNode->prev->next = thisNode->next;
-        thisNode->next->prev = thisNode->prev;
-    } else {
-        if (thisNode->prev) {
-            thisNode->prev->next = NULL;
-        }
-        if (thisNode->next) {
-            thisNode->next->prev = NULL;
-        }
-    }
-    free(thisNode);
-    return;
-}
-
 void freeAllTokenNodes(tokenNode *thisNode)
 {
     //this will have trouble if the chain list is a cycle
     while (thisNode->next) {
         thisNode = thisNode->next;
+        free(thisNode->prev->token);
         free(thisNode->prev);
     }
+    free(thisNode->token);
     free(thisNode);
     return;
 }
