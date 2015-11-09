@@ -12,6 +12,9 @@ int main (int argc, char **argv)
     FILE *fin = stdin;
     FILE *fout = stdout;
 
+    //i/o flag
+    int standardio = 1;
+
     //-e enables the evaluating mode
     int eflag = 0;
     int fflag = 0;
@@ -22,8 +25,22 @@ int main (int argc, char **argv)
     //standard option processing loop
     opterr = 0;
     int c = 0;
-    while ((c = getopt (argc, argv, "f:o:e:")) != -1) {
+    while ((c = getopt (argc, argv, "hf:o:e:")) != -1) {
         switch (c) {
+            case 'h':
+                fprintf(fout, "usage: calc [-f input_file] [-o output_file] [-e] [expression] ...\
+\nOptions and arguments:\
+\n-f     : specify the input file\
+\n-o     : specify the output file\
+\n-e     : enable the Evaluating mode\
+\n-h     : print this help message and exit\
+\n\
+\nExpressions output:\
+\n    If the input or output is not given by the standard i/o, the expressions\
+\n    themselves would also be printed.\
+\n    The expressions would also be printed under the Evaluating mode.\
+\n");
+                return 0;
             case 'e':
                 eflag = 1;
                 expr = optarg;
@@ -34,6 +51,7 @@ int main (int argc, char **argv)
                     perror("file opening failed");
                     return EXIT_FAILURE;
                 }
+                standardio = 0;
                 break;
             case 'o':
                 fout = fopen(optarg, "w");
@@ -41,6 +59,7 @@ int main (int argc, char **argv)
                     perror("file opening failed");
                     return EXIT_FAILURE;
                 }
+                standardio = 0;
                 break;
             case '?':
                 if (optopt == 'e')
@@ -83,9 +102,9 @@ int main (int argc, char **argv)
 
     //the INTERACTIVE mode
     } else {
- 
+
         //interactive mode emulates the python interpreter
-        if (fout == stdout) {
+        if (standardio) {
             fprintf(fout, "A Stupid Calc\n");
         }
 
@@ -100,7 +119,7 @@ int main (int argc, char **argv)
         while (1) {
 
             //print prompt
-            if (fout == stdout) {
+            if (standardio) {
                 fprintf(fout, ">>> ");
             }
 
@@ -111,7 +130,7 @@ int main (int argc, char **argv)
             //this test solves this problem
             if (fscanf(fin, "%s", expr) != EOF) {
 
-                if (fin != stdin) {
+                if (!standardio) {
                     fprintf(fout, "%s = ", expr);
                 }
                 if (!evaluate(fout, expr)) {
@@ -121,7 +140,7 @@ int main (int argc, char **argv)
             } else {
 
                 //if encountered EOF then break the loop and quit
-                if (fout == stdout) {
+                if (standardio) {
                     fprintf(fout, "exit\n");
                 }
                 break;

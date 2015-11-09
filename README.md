@@ -14,7 +14,7 @@ repository for lab task 0x01
 | To             | All members, Freshmembers          |
 | Date           | November 2, 2015 at 18:14:44 GMT+8 |
 
-### Lab Task 0x01
+#### Lab Task 0x01
 
 C语言是一门美妙的语言，我们要（努力地）像使用母语一样，流利地使用C语言。
 
@@ -33,3 +33,17 @@ C语言是一门美妙的语言，我们要（努力地）像使用母语一样�
 统一使用git进行代码的版本控制
 
 嗯 就这样吧 happy coding :)
+
+## a-stupid-calc
+
+usage: calc [-f input_file] [-o output_file] [-e] [expression] ...
+Options and arguments:
+-f     : specify the input file
+-o     : specify the output file
+-e     : enable the Evaluating mode
+-h     : print this help message and exit
+
+Expressions output:
+    If the input or output is not given by the standard i/o, the expressions
+    themselves would also be printed.
+    The expressions would also be printed under the Evaluating mode.
